@@ -1,6 +1,9 @@
 {
-    "name": "alastor141/googlesheets",
+    "name": "alastor141/bitrix-google-sheets",
     "description": "",
+    "extra": {
+        "installer-name": "googlesheets"
+    },
     "authors": [
         {
             "name": "Sergey Ivakhnenko",
