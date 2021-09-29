@@ -1,0 +1,25 @@
+{
+    "name": "alastor141/googlesheets",
+    "description": "",
+    "authors": [
+        {
+            "name": "Sergey Ivakhnenko",
+            "email": "alastor141@gmail.com"
+        }
+    ],
+    "type": "bitrix-d7-module",
+    "version": "0.1.0",
+    "license": "MIT",
+    "require": {
+        "php": ">=7.2.5",
+        "alastor141/google-sheets": "^0.1.0"
+    },
+    "require-dev": {
+        "symfony/var-dumper": "^5.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "Alastor141\\Bitrix\\Google\\Sheets\\": "src/"
+        }
+    }
+}
