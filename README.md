@@ -50,9 +50,6 @@ try {
     $kernel = new Kernel();
     $sheets = $kernel->getContainer()->get('bitrix.export.object');
     $sheets->export();
-
-	$sheets = $kernel->getContainer()->get('bitrix.export.gray.object');
-    $sheets->export();
 } catch (\Exception $error) {
     dump($error);
 }
