@@ -6,7 +6,12 @@ parameters:
     scopes:
       - !php/const Google\Service\Sheets::SPREADSHEETS
   bitrix.export.object.config:
-    base_objects: 42
+    filter:
+      IBLOCK_ID: 42
+      ACTIVE: 'Y'
+      '!PROPERTY_HOUSE_ID': false
+      '!PROPERTY_SECTION_ID': false
+      '!PROPERTY_BUILDING_ID': false
 
 services:
   google.client:
