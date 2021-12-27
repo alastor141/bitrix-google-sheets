@@ -69,30 +69,7 @@ class Provider extends BaseProvider
     
     public function execution() : Rows
     {
-        dump($this->spreadsheets);
-
-        $filter = [
-            'IBLOCK_ID' => $this->config['base_objects'],
-            'ACTIVE' => 'Y',
-            '!PROPERTY_HOUSE_ID' => false,
-            '!PROPERTY_SECTION_ID' => false,
-            '!PROPERTY_BUILDING_ID' => false,
-            'PROPERTY_BUILDING_ID' => [
-                114963,
-//                138,
-//                1576,
-//                5251,
-//                2545
-            ]
-//            'PROPERTY_SECTION_ID' => [
-//                114977,
-//                114979,
-//                114981,
-//                114985,
-//                114987,
-//                114989
-//            ]
-        ];
+		$filter = $this->config['filter'];
 
         $select = [
             'ID',
@@ -141,7 +118,8 @@ class Provider extends BaseProvider
                 $sheetTitle[$houseId] = $building['name'].' '.$house['name'];
                 $buildingKey = ($buildingId+$houseId)*2;
                 $buildingMetadataIds[$buildingKey] = $buildingKey;
-//                $headers[$houseId]['values'][$buildingKey] = [$building['name']];
+				//Убрана строка названия ЖК
+				//$headers[$houseId]['values'][$buildingKey] = [$building['name']];
                 $headers[$houseId]['values'][$houseId] = [$house['name']];
                 foreach ($house['sections'] as $sectionId => $section) {
                     $sectionMetadataIds[] = $sectionId;
@@ -215,7 +193,8 @@ class Provider extends BaseProvider
                         }
 
                         $roomId = ($sectionId+1)*4;
-                        $sections[$houseId]['values'][$sectionId]['values'][$roomId] = $room;
+						//Убрана строка количества комнат
+						//$sections[$houseId]['values'][$sectionId]['values'][$roomId] = $room;
                         $sections[$houseId]['values'][$sectionId]['values'][$sectionId.abs($floorId)] = $cells;
                         $sections[$houseId]['values'][$sectionId]['format'][$sectionId.abs($floorId)] = $formatCells;
                         $sections[$houseId]['values'][$sectionId]['textFormatRuns'][$sectionId.abs($floorId)] = $textFormatRuns;
@@ -229,23 +208,32 @@ class Provider extends BaseProvider
 
         $sheetIndex = 0;
         $sheets = $this->spreadsheets->getSheets();
-        foreach ($sections as $houseId => $section) {
 
+        foreach ($sections as $houseId => $section) {
             $uid = ($houseId+1)*6;
-            $sheet = $sheets[$sheetIndex];
+            $sheet = false;
+            foreach ($sheets as $s) {
+                $developerMetadata = $s->getDeveloperMetadata();
+                foreach ($developerMetadata as $item) {
+                    if ($item->getMetadataId() == $uid) {
+                        $sheet = $s;
+                    }
+                }
+            }  
+
             if ($sheet) {
                 $sheetId = $sheet->getProperties()->getSheetId();
                 $updateSheetProperties = new UpdateSheetPropertiesRequest([
                     'fields' => 'title',
                     'properties' => new SheetProperties([
                         'sheetId' => $sheetId,
-                        'title' => $sheetTitle[$houseId]
+						'title' => $sheetTitle[$houseId]
                     ])
                 ]);
 
                 $request = new Request();
                 $request->setUpdateSheetProperties($updateSheetProperties);
-                $this->beforeAdditionalRequest[] = $request;
+				$this->beforeAdditionalRequest[] = $request;
 
             } else {
                 $sheetId = $uid;
@@ -289,10 +277,17 @@ class Provider extends BaseProvider
             foreach ($section['values'] as $values) {
 
                 if ($startRowIndex === 0) {
-                    $values['values'] = $headers[$houseId]['values'] + $values['values'];
+					//Убрана строка литера
+					//$values['values'] = $headers[$houseId]['values'] + $values['values'];
                 }
 
                 foreach ($values['values'] as $uid => $value) {
+					//Убрана строка подъезда
+					if (in_array($uid, $sectionMetadataIds)) {
+
+						continue;
+					}
+
                     $developerMetadata = $this->developerMetadata[$uid];
                     if ($developerMetadata) {
                         $startRowIndex = $developerMetadata->getLocation()->getDimensionRange()->getStartIndex();
@@ -311,7 +306,7 @@ class Provider extends BaseProvider
                             ])
                         ]));
 
-                        $this->beforeAdditionalRequest[] = $mergeRequest;
+						$this->beforeAdditionalRequest[] = $mergeRequest;
                     }
 
                     $params = [
