@@ -13,10 +13,9 @@
     "type": "bitrix-d7-module",
     "version": "1.0.0",
     "license": "MIT",
-    "minimum-stability": "1.0.0",
     "require": {
         "php": ">=7.2.5",
-        "alastor141/google-sheets": "^1.0"
+        "alastor141/google-sheets": "dev-main"
     },
     "require-dev": {
         "symfony/var-dumper": "^5.3"
